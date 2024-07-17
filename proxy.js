@@ -124,7 +124,7 @@ function handleError(error, res) {
     res.status(500).json({ error: error.message });
   }
 }
-// // Serve index.html
+// Serve index.html
 // app.get("/", (req, res) => {
 //   res.sendFile(path.join(__dirname, "public", "index.html"));
 // });
