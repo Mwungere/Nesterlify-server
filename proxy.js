@@ -5,6 +5,10 @@ const path = require("path");
 const mongoose = require("mongoose");
 require("dotenv").config()
 const app = express();
+
+app.use(express.json())
+app.use(cors())
+
 const port = process.env.PORT || 3500;
 // Replace with your actual access token
 const DUFFEL_ACCESS_TOKEN = 'duffel_test_p94uLT5WAI3D9qRlbPD30LQ_t0MbGF9XUP6tBqf1Ixl';
@@ -120,10 +124,10 @@ function handleError(error, res) {
     res.status(500).json({ error: error.message });
   }
 }
-// Serve index.html
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+// // Serve index.html
+// app.get("/", (req, res) => {
+//   res.sendFile(path.join(__dirname, "public", "index.html"));
+// });
 // Start the server
 app.listen(port, () => {
   console.log(`Proxy server running at http://localhost:${port}`);
