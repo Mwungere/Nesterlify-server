@@ -1,0 +1,32 @@
+{
+  "name": "nesterlify",
+  "version": "1.0.0",
+  "description": "",
+  "main": "proxy.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mwungere/nesterlify.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mwungere/nesterlify/issues"
+  },
+  "homepage": "https://github.com/Mwungere/nesterlify#readme",
+  "dependencies": {
+    "@duffel/api": "^2.14.0",
+    "@duffel/components": "^3.7.17",
+    "@nowpaymentsio/nowpayments-api-js": "^1.0.5",
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.1"
+  }
+}
