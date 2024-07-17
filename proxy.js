@@ -3,19 +3,17 @@ const axios = require("axios");
 const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
-
+require("dotenv").config()
 const app = express();
-const port = 3000;
-
+const port = process.env.PORT || 3500;
 // Replace with your actual access token
 const DUFFEL_ACCESS_TOKEN = 'duffel_test_p94uLT5WAI3D9qRlbPD30LQ_t0MbGF9XUP6tBqf1Ixl';
-
 // MongoDB setup
-mongoose.connect("mongodb://localhost:27017/bookingDB", {
+mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
-
+}).then(()=>console.log("Connected to the database"))
+.catch(err=>console.log(err))
 const bookingSchema = new mongoose.Schema({
   fullName: String,
   country: String,
@@ -23,18 +21,14 @@ const bookingSchema = new mongoose.Schema({
   dob: String,
   passportNumber: String,
 });
-
 const Booking = mongoose.model("Booking", bookingSchema);
-
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.static(path.join(__dirname, "public")));
-
 // Handle booking submission
 app.post("/api/bookings", async (req, res) => {
   const { fullName, country, gender, dob, passportNumber } = req.body;
-
   try {
     // Create a new booking document
     const newBooking = new Booking({
@@ -44,19 +38,15 @@ app.post("/api/bookings", async (req, res) => {
       dob,
       passportNumber,
     });
-
     // Save the booking to MongoDB
     const savedBooking = await newBooking.save();
-
     // Respond with the saved booking data
     res.status(201).json({ booking: savedBooking });
-
   } catch (error) {
     console.error('Error saving booking:', error);
     res.status(500).json({ error: 'Error saving booking' });
   }
 });
-
 // Existing API endpoints for flights
 app.post("/api/offer_requests", async (req, res) => {
   try {
@@ -76,7 +66,6 @@ app.post("/api/offer_requests", async (req, res) => {
     handleError(error, res);
   }
 });
-
 app.get("/api/offers/:offer_request_id", async (req, res) => {
   const { offer_request_id } = req.params;
   try {
@@ -90,7 +79,6 @@ app.get("/api/offers/:offer_request_id", async (req, res) => {
         },
       }
     );
-
     if (response.data && response.data.data && response.data.data.length > 0) {
       const offersToDisplay = response.data.data.slice(0, 3);
       res.json({ offers: offersToDisplay });
@@ -102,7 +90,6 @@ app.get("/api/offers/:offer_request_id", async (req, res) => {
     handleError(error, res);
   }
 });
-
 // New endpoints for stays (accommodation search)
 app.post("/api/accommodation_search", async (req, res) => {
   try {
@@ -122,7 +109,6 @@ app.post("/api/accommodation_search", async (req, res) => {
     handleError(error, res);
   }
 });
-
 // Error handling function
 function handleError(error, res) {
   if (error.response) {
@@ -134,12 +120,10 @@ function handleError(error, res) {
     res.status(500).json({ error: error.message });
   }
 }
-
 // Serve index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-
 // Start the server
 app.listen(port, () => {
   console.log(`Proxy server running at http://localhost:${port}`);
