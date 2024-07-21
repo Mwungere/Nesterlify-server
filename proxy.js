@@ -84,7 +84,7 @@ app.get("/api/offers/:offer_request_id", async (req, res) => {
       }
     );
     if (response.data && response.data.data && response.data.data.length > 0) {
-      const offersToDisplay = response.data.data.slice(0, 3);
+      const offersToDisplay = response.data.data;
       res.json({ offers: offersToDisplay });
     } else {
       console.log("No offers found!");
