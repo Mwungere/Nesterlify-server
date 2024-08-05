@@ -94,25 +94,28 @@ app.get("/api/offers/:offer_request_id", async (req, res) => {
     handleError(error, res);
   }
 });
-// New endpoints for stays (accommodation search)
-app.post("/api/accommodation_search", async (req, res) => {
+
+app.post('/api/search-stays', async (req, res) => {
   try {
-    const response = await axios.post(
-      "https://api.duffel.com/stays/search",
-      req.body,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${DUFFEL_ACCESS_TOKEN}`,
-          "Duffel-Version": "v1",
-        },
-      }
-    );
-    res.json(response.data);
+    const response = await fetch('https://api.duffel.com/stays/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer duffel_test_p94uLT5WAI3D9qRlbPD30LQ_t0MbGF9XUP6tBqf1Ixl', // Replace with your actual token
+        'Duffel-Version': 'v1'
+      },
+      body: JSON.stringify({ data: req.body })
+    });
+
+    const data = await response.json();
+    res.json(data);
   } catch (error) {
-    handleError(error, res);
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 // Error handling function
 function handleError(error, res) {
   if (error.response) {
