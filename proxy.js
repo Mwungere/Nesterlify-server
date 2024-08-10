@@ -164,7 +164,6 @@ app.post('/api/search-stays', async (req, res) => {
   }
 });
 
-
 // Error handling function
 function handleError(error, res) {
   if (error.response) {
