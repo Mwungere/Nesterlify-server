@@ -3,21 +3,33 @@ const axios = require("axios");
 const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
+const { Duffel } = require("@duffel/api");
 require("dotenv").config()
 const app = express();
 
 app.use(express.json())
 app.use(cors())
 
+
+
+
 const port = process.env.PORT || 3500;
 // Replace with your actual access token
 const DUFFEL_ACCESS_TOKEN = 'duffel_test_p94uLT5WAI3D9qRlbPD30LQ_t0MbGF9XUP6tBqf1Ixl';
+
+const duffel = new Duffel({
+  token: DUFFEL_ACCESS_TOKEN
+})
+
+
 // MongoDB setup
 mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(()=>console.log("Connected to the database"))
 .catch(err=>console.log(err))
+
+
 const bookingSchema = new mongoose.Schema({
   fullName: String,
   country: String,
@@ -25,7 +37,20 @@ const bookingSchema = new mongoose.Schema({
   dob: String,
   passportNumber: String,
 });
+
+const StaysBookingSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  country: String,
+  email: String,
+  phone: String,
+});
+
+
+
 const Booking = mongoose.model("Booking", bookingSchema);
+const StaysBooking = mongoose.model("StaysBookings", StaysBookingSchema)
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
@@ -51,6 +76,28 @@ app.post("/api/bookings", async (req, res) => {
     res.status(500).json({ error: 'Error saving booking' });
   }
 });
+
+app.post("/api/stays-bookings", async (req, res) => {
+  const { firstName, lastName, country, email, phone } = req.body;
+  try {
+    // Create a new booking document
+    const newBooking = new StaysBooking({
+      firstName,
+      lastName,
+      country,
+      email,
+      phone,
+    });
+    // Save the booking to MongoDB
+    const savedBooking = await newBooking.save();
+    // Respond with the saved booking data
+    res.status(201).json({ StaysBooking: savedBooking });
+  } catch (error) {
+    console.error('Error saving booking:', error);
+    res.status(500).json({ error: 'Error saving booking' });
+  }
+});
+
 // Existing API endpoints for flights
 app.post("/api/offer_requests", async (req, res) => {
   try {
@@ -70,6 +117,7 @@ app.post("/api/offer_requests", async (req, res) => {
     handleError(error, res);
   }
 });
+
 app.get("/api/offers/:offer_request_id", async (req, res) => {
   const { offer_request_id } = req.params;
   try {
@@ -84,7 +132,7 @@ app.get("/api/offers/:offer_request_id", async (req, res) => {
       }
     );
     if (response.data && response.data.data && response.data.data.length > 0) {
-      const offersToDisplay = response.data.data.slice(0, 3);
+      const offersToDisplay = response.data.data;
       res.json({ offers: offersToDisplay });
     } else {
       console.log("No offers found!");
@@ -94,25 +142,29 @@ app.get("/api/offers/:offer_request_id", async (req, res) => {
     handleError(error, res);
   }
 });
-// New endpoints for stays (accommodation search)
-app.post("/api/accommodation_search", async (req, res) => {
+
+app.post('/api/search-stays', async (req, res) => {
   try {
-    const response = await axios.post(
-      "https://api.duffel.com/stays/search",
-      req.body,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${DUFFEL_ACCESS_TOKEN}`,
-          "Duffel-Version": "v1",
-        },
-      }
-    );
-    res.json(response.data);
+    const response = await fetch('https://api.duffel.com/stays/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer duffel_test_p94uLT5WAI3D9qRlbPD30LQ_t0MbGF9XUP6tBqf1Ixl', // Replace with your actual token
+        'Duffel-Version': 'v1'
+      },
+      body: JSON.stringify({ data: req.body })
+    });
+
+    const data = await response.json();
+    res.json(data);
   } catch (error) {
-    handleError(error, res);
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
 // Error handling function
 function handleError(error, res) {
   if (error.response) {
